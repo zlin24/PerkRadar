@@ -22,10 +22,6 @@ jobs:
       contents: read
       actions: read
     env:
-      DATA_DIR: ${{ runner.temp }}/perkradar-pages-db
-      DEALS_SNAPSHOT_DIR: ${{ runner.temp }}/perkradar-raw-snapshot
-      SNAPSHOT_SITE_DIR: ${{ runner.temp }}/perkradar-pages
-      SNAPSHOT_PREVIOUS_FILE: ${{ runner.temp }}/perkradar-previous/latest.json
       DISABLE_SCHEDULER: '1'
     steps:
       - uses: actions/checkout@v4
@@ -77,21 +73,39 @@ jobs:
           path: ${{ runner.temp }}/perkradar-previous
           run-id: ${{ steps.baseline.outputs.run-id }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
-
       - name: Fetch sources into an isolated database
         id: fetch
         # 全失败仍需生成 status.json；后续准备步骤决定能否保留并发布历史。
         continue-on-error: true
         env:
           JINA_API_KEY: ${{ secrets.JINA_API_KEY }}
+          DATA_DIR: ${{ runner.temp }}/perkradar-pages-db
+          DEALS_SNAPSHOT_DIR: ${{ runner.temp }}/perkradar-raw-snapshot
+          SNAPSHOT_SITE_DIR: ${{ runner.temp }}/perkradar-pages
+          SNAPSHOT_PREVIOUS_FILE: ${{ runner.temp }}/perkradar-previous/latest.json
         run: npm run report
       - name: Export this round
+        env:
+          DATA_DIR: ${{ runner.temp }}/perkradar-pages-db
+          DEALS_SNAPSHOT_DIR: ${{ runner.temp }}/perkradar-raw-snapshot
+          SNAPSHOT_SITE_DIR: ${{ runner.temp }}/perkradar-pages
+          SNAPSHOT_PREVIOUS_FILE: ${{ runner.temp }}/perkradar-previous/latest.json
         run: |
           test -s reports/live-fetch-summary.json
           node --import tsx scripts/write-snapshot.ts
       - name: Prepare public snapshot and failure status
+        env:
+          DATA_DIR: ${{ runner.temp }}/perkradar-pages-db
+          DEALS_SNAPSHOT_DIR: ${{ runner.temp }}/perkradar-raw-snapshot
+          SNAPSHOT_SITE_DIR: ${{ runner.temp }}/perkradar-pages
+          SNAPSHOT_PREVIOUS_FILE: ${{ runner.temp }}/perkradar-previous/latest.json
         run: npm run snapshot:prepare
       - name: Build the static viewer
+        env:
+          DATA_DIR: ${{ runner.temp }}/perkradar-pages-db
+          DEALS_SNAPSHOT_DIR: ${{ runner.temp }}/perkradar-raw-snapshot
+          SNAPSHOT_SITE_DIR: ${{ runner.temp }}/perkradar-pages
+          SNAPSHOT_PREVIOUS_FILE: ${{ runner.temp }}/perkradar-previous/latest.json
         run: npm run build:snapshot
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
