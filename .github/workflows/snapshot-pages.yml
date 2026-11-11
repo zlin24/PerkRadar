@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
   schedule:
     # GitHub cron 使用 UTC，与应用两小时抓取间隔一致。
-    - cron: '23 */2 * * *'
+    - cron: '23 */2 * * *' # Runs at 23 minutes past the hour, every 2 hours
 
 concurrency:
   group: snapshot-pages
