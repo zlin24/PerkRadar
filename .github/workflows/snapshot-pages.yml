@@ -21,8 +21,6 @@ jobs:
     permissions:
       contents: read
       actions: read
-    env:
-      DISABLE_SCHEDULER: '1'
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -82,6 +80,7 @@ jobs:
           DATA_DIR: ${{ runner.temp }}/perkradar-pages-db
           DEALS_SNAPSHOT_DIR: ${{ runner.temp }}/perkradar-raw-snapshot
           SNAPSHOT_SITE_DIR: ${{ runner.temp }}/perkradar-pages
+          DISABLE_SCHEDULER: '1'
           SNAPSHOT_PREVIOUS_FILE: ${{ runner.temp }}/perkradar-previous/latest.json
         run: npm run report
       - name: Export this round
@@ -90,6 +89,7 @@ jobs:
           DEALS_SNAPSHOT_DIR: ${{ runner.temp }}/perkradar-raw-snapshot
           SNAPSHOT_SITE_DIR: ${{ runner.temp }}/perkradar-pages
           SNAPSHOT_PREVIOUS_FILE: ${{ runner.temp }}/perkradar-previous/latest.json
+          DISABLE_SCHEDULER: '1'
         run: |
           test -s reports/live-fetch-summary.json
           node --import tsx scripts/write-snapshot.ts
@@ -99,6 +99,7 @@ jobs:
           DEALS_SNAPSHOT_DIR: ${{ runner.temp }}/perkradar-raw-snapshot
           SNAPSHOT_SITE_DIR: ${{ runner.temp }}/perkradar-pages
           SNAPSHOT_PREVIOUS_FILE: ${{ runner.temp }}/perkradar-previous/latest.json
+          DISABLE_SCHEDULER: '1'
         run: npm run snapshot:prepare
       - name: Build the static viewer
         env:
@@ -106,6 +107,7 @@ jobs:
           DEALS_SNAPSHOT_DIR: ${{ runner.temp }}/perkradar-raw-snapshot
           SNAPSHOT_SITE_DIR: ${{ runner.temp }}/perkradar-pages
           SNAPSHOT_PREVIOUS_FILE: ${{ runner.temp }}/perkradar-previous/latest.json
+          DISABLE_SCHEDULER: '1'
         run: npm run build:snapshot
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
